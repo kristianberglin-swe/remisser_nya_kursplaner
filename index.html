@@ -75,7 +75,7 @@ footer{border-top:1px solid var(--edge);padding-top:.8rem;margin-top:1.5rem}
 .home-resources{margin:1.55rem 0 1.8rem}.home-resources>h2{margin:0 0 .75rem}.home-source-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.85rem}.home-source,.home-presentation{border:1px solid var(--edge);border-radius:4px;padding:1rem}.home-source h3{margin:0 0 .4rem;font-size:1.04rem}.home-source p,.home-presentation>p{margin:.35rem 0;color:var(--muted)}.home-source a{display:inline-block;margin:.3rem 0 0;font-weight:700}.home-presentation{margin-top:1.25rem}.home-presentation>h2{margin:0 0 .35rem}.home-presentation .disclosure{margin-top:.85rem}
 @media(max-width:540px){.home-source-grid{grid-template-columns:1fr}}
 .reflections{background:var(--wash);border-left:4px solid #705295}.reflection-help{margin:.35rem 0 .75rem}.personal-notes{border:1px solid var(--edge);border-radius:4px;padding:clamp(12px,2vw,20px);background:#f7f8fa}.personal-notes label{font-weight:650}
-.intro.photo-intro{border-radius:10px;box-shadow:0 12px 28px -12px #261b4060,0 2px 7px #261b401c;text-shadow:0 1px 5px #161020b0}
+.intro.photo-intro{border-radius:10px;box-shadow:0 3px 18px 2px #261b4048,0 13px 30px -9px #261b405c;text-shadow:0 1px 5px #161020b0}
 @media(max-width:600px){.intro.photo-intro{background-image:linear-gradient(90deg,#191323dc,#19132398),var(--school-photo)}}
 @media print{.intro.photo-intro{box-shadow:none;text-shadow:none;background:none}}
 </style>
@@ -96,7 +96,7 @@ footer{border-top:1px solid var(--edge);padding-top:.8rem;margin-top:1.5rem}
       <label for="search">Sök i ämnen och innehåll</label>
       <input class="search" id="search" type="search" placeholder="Exempelvis simning, algebra, jiddisch" autocomplete="off">
       <p class="search-status" id="search-status" aria-live="polite"></p>
-      <a class="nav-link nav-home" href="#overview">Hela läroplanen</a>
+      <a class="nav-link nav-home" href="#overview">Jämför läroplaner</a>
       <div class="subject-list" id="subjects"></div>
     </div>
   </nav>
@@ -160,7 +160,7 @@ function renderNav() {
   }).join('');
   const count = [...byGroup.values()].reduce((sum, group) => sum + group.length, 0);
   const overviewMatch = tokens.length && tokens.every(token => normalize(Object.values(data.overview).flat(2).join(' ')).includes(token));
-  searchStatus.textContent = tokens.length ? `${count} ämnesträffar${overviewMatch?' · träff i Hela läroplanen':''}` : '35 grundskolebilagor · 3 samiska spår';
+  searchStatus.textContent = tokens.length ? `${count} ämnesträffar${overviewMatch?' · träff i Jämför läroplaner':''}` : '35 grundskolebilagor · 3 samiska spår';
   const home = document.querySelector('.nav-home');
   if (active==='overview') home.setAttribute('aria-current','page');
   else home.removeAttribute('aria-current');
@@ -388,10 +388,9 @@ function render(focusPage=false) {
   const samePage = active === (selected?.name || 'overview') && content.hasChildNodes();
   active = selected?.name || 'overview';
   if (!samePage) {
-    const name=selected?.name || 'Hela läroplanen';
+    const name=selected?.name || 'Jämför läroplaner';
     const entries=Object.entries(selected?.sections || data.overview);
     const route=enc(active);
-    document.title = name + ' · Läroplanskompassen';
     const disclosure = (id,title,body,open=false) => `<details class="block disclosure" id="${id}" ${open?'open':''}><summary>${escape(title)}</summary><div class="disclosure-body">${body}</div></details>`;
     const sections = entries.map(([title,rows],i) =>
       disclosure('avsnitt-'+i,title,`<div id="rubrik-${i}" hidden>${escape(title)}</div>${table(rows,'rubrik-'+i)}`,Boolean(selected && i===0))
@@ -400,7 +399,7 @@ function render(focusPage=false) {
       <p class="eyebrow">${escape(selected?.category || 'Grundskolan · Remiss 9 november 2026')}</p><h1 id="page-title">${escape(name)}</h1>
       <p class="lead">${selected ? escape(selected.note || 'Jämförelse av Lgr22 för årskurs 7–9 och remissens mål och innehåll för årskurs 8–10.') : 'Här går vi igenom den gällande läroplanen och kursplanerna i Lgr22 och jämför dem med Skolverkets nya remissförslag, publicerat den 9 november 2026.'}</p>
       ${selected ? '' : '<p>Du kan läsa om förändringar som gäller hela grundskolan eller välja ett ämne. Ämnesjämförelserna fokuserar på högstadiet, årskurs 7–9 i Lgr22 och årskurs 8–10 i förslaget, med exempel på vad förändringarna kan innebära för undervisning och bedömning.</p>'}
-      <div class="article-links"><a href="#${route}/amnen">Sök eller välj ämne</a>${selected ? `<a href="#overview">Hela läroplanen</a><a href="#${route}/delade-reflektioner">Dela en reflektion</a><a href="#${route}/egna-anteckningar">Mina privata anteckningar</a>` : ''}<a href="#${route}/${selected ? 'kallor' : 'originalkallor'}">Källor</a>${selected ? '' : '<a href="#overview/presentation">PowerPoint</a>'}<button class="text-button" type="button" id="print-page">Skriv ut</button></div>
+      <div class="article-links"><a href="#${route}/amnen">Sök eller välj ämne</a>${selected ? `<a href="#overview">Jämför läroplaner</a><a href="#${route}/delade-reflektioner">Dela en reflektion</a><a href="#${route}/egna-anteckningar">Mina privata anteckningar</a>` : ''}<a href="#${route}/${selected ? 'kallor' : 'originalkallor'}">Källor</a>${selected ? '' : '<a href="#overview/presentation">PowerPoint</a>'}<button class="text-button" type="button" id="print-page">Skriv ut</button></div>
       </section>
       ${selected ? reflectionPanel(selected) : `<section class="home-resources" id="originalkallor" aria-labelledby="originalkallor-title">
         <h2 id="originalkallor-title">Originalkällor från Skolverket</h2>

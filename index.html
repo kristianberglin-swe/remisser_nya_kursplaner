@@ -432,7 +432,7 @@ function render(focusPage=false) {
         body += reflectionPanel(area,suffix);
         if (reflectionEditing) body += reflectionEditor(suffix);
       }
-      return disclosure('avsnitt-'+i,title,body,Boolean(selected && i===0));
+      return disclosure('avsnitt-'+i,title,body);
     }).join('');
     content.innerHTML=`<section class="intro${selected ? '' : ' photo-intro'}" aria-labelledby="page-title">
       <p class="eyebrow">${escape(selected?.category || 'Grundskolan · Remiss 9 november 2026')}</p><h1 id="page-title">${escape(name)}</h1>

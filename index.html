@@ -258,33 +258,33 @@ function reflectionEntries(items) {
   return items.length ? items.map(({author,body}) => `<blockquote class="reflection-entry"><p><em>”${escape(body)}”</em></p>${author ? `<footer>${escape(author)}</footer>` : ''}</blockquote>`).join('') : '<p>Här visas kollegornas reflektioner när de har publicerats.</p>';
 }
 
-function reflectionPanel(subject) {
-  return `<section class="reflections" id="delade-reflektioner" aria-labelledby="reflections-title">
-    <h2 id="reflections-title">Reflektioner att dela med kollegor</h2><p class="reflection-help">Använd formuläret för att mejla din reflektion till Kristian. Han läser den före publicering på ämnessidan, där kollegor kan ta del av den.</p>
-    <div id="reflection-entries">${reflectionEntries(reflections[subject.id] || [])}</div>
+function reflectionPanel(subject, suffix = '') {
+  return `<section class="reflections" id="delade-reflektioner${suffix}" aria-labelledby="reflections-title${suffix}">
+    <h2 id="reflections-title${suffix}">Reflektioner att dela med kollegor</h2><p class="reflection-help">Använd formuläret för att mejla din reflektion till Kristian. Han läser den före publicering ${suffix ? 'i det här avsnittet' : 'på ämnessidan'}, där kollegor kan ta del av den.</p>
+    <div id="reflection-entries${suffix}">${reflectionEntries(reflections[subject.id] || [])}</div>
     <details class="reflection-form"><summary>Dela dina tankar om remissen</summary>
-      <form id="reflection-submit" class="reflection-fields">
+      <form id="reflection-submit${suffix}" class="reflection-fields">
         <p><strong>Vad tänker du om det nya förslaget?</strong> Vilka skillnader ser du? Vilka konsekvenser kan de få för undervisning och bedömning?</p>
-        <p>Fyll i formuläret med dina tankar. Efter genomläsning läggs de in på den här ämnessidan.</p>
-        <label for="reflection-author">Ditt namn (valfritt)</label><input id="reflection-author" name="author" maxlength="100" autocomplete="name">
-        <label for="reflection-body">Din reflektion</label><textarea id="reflection-body" name="body" required maxlength="1800"></textarea>
+        <p>Fyll i formuläret med dina tankar. Efter genomläsning läggs de in här.</p>
+        <label for="reflection-author${suffix}">Ditt namn (valfritt)</label><input id="reflection-author${suffix}" name="author" maxlength="100" autocomplete="name">
+        <label for="reflection-body${suffix}">Din reflektion</label><textarea id="reflection-body${suffix}" name="body" required maxlength="1800"></textarea>
         <p>Outlook öppnas i en ny flik med ämnet, mottagaren och din text ifyllda. Logga in med skolkontot vid behov och tryck på Skicka.</p>
-        <div class="actions"><button class="pill" type="submit">Öppna utkast i Outlook</button><button class="pill secondary" type="button" id="reflection-copy">Kopiera mejltext</button></div>
-        <p id="reflection-status" role="status"></p>
+        <div class="actions"><button class="pill" type="submit">Öppna utkast i Outlook</button><button class="pill secondary" type="button" id="reflection-copy${suffix}">Kopiera mejltext</button></div>
+        <p id="reflection-status${suffix}" role="status"></p>
       </form>
     </details>
   </section>`;
 }
 
-function reflectionEditor() {
+function reflectionEditor(suffix = '') {
   return `<details class="reflection-form reflection-editor"><summary>Redigera publicerade reflektioner</summary>
-    <form id="reflection-editor" class="reflection-fields">
+    <form id="reflection-editor${suffix}" class="reflection-fields">
       <p>Redigera här och ladda ner en ny HTML-fil. Byt ut den publicerade filen för att visa ändringarna för alla.</p>
-      <label for="reflection-pick">Reflektion</label><select id="reflection-pick"></select>
-      <label for="reflection-credit">Namn att visa (valfritt)</label><input id="reflection-credit" name="author" maxlength="100">
-      <label for="reflection-edit-body">Text</label><textarea id="reflection-edit-body" name="body" maxlength="1800"></textarea>
-      <div class="actions"><button class="pill" type="submit">Spara och ladda ner HTML</button><button class="pill secondary" id="reflection-remove" type="button" hidden>Ta bort och ladda ner HTML</button></div>
-      <p id="reflection-edit-status" role="status"></p>
+      <label for="reflection-pick${suffix}">Reflektion</label><select id="reflection-pick${suffix}"></select>
+      <label for="reflection-credit${suffix}">Namn att visa (valfritt)</label><input id="reflection-credit${suffix}" name="author" maxlength="100">
+      <label for="reflection-edit-body${suffix}">Text</label><textarea id="reflection-edit-body${suffix}" name="body" maxlength="1800"></textarea>
+      <div class="actions"><button class="pill" type="submit">Spara och ladda ner HTML</button><button class="pill secondary" id="reflection-remove${suffix}" type="button" hidden>Ta bort och ladda ner HTML</button></div>
+      <p id="reflection-edit-status${suffix}" role="status"></p>
     </form>
   </details>`;
 }
@@ -311,9 +311,9 @@ function downloadReflectionUpdate() {
   setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
-function initReflections(subject) {
-  const form = document.querySelector('#reflection-submit');
-  const status = document.querySelector('#reflection-status');
+function initReflections(subject, suffix = '') {
+  const form = document.querySelector(`#reflection-submit${suffix}`);
+  const status = document.querySelector(`#reflection-status${suffix}`);
   function readMail() {
     const body = form.elements.body.value.trim();
     status.textContent = body ? '' : 'Skriv din reflektion först.';
@@ -327,7 +327,7 @@ function initReflections(subject) {
     status.textContent = 'Om Outlook inte öppnas kan du kopiera mejltexten och klistra in den i ett nytt meddelande.';
     window.open(mail.href, '_blank', 'noopener,noreferrer');
   };
-  document.querySelector('#reflection-copy').onclick = async () => {
+  document.querySelector(`#reflection-copy${suffix}`).onclick = async () => {
     const mail = readMail();
     if (!mail) return;
     try {
@@ -340,15 +340,15 @@ function initReflections(subject) {
   };
 
   if (!reflectionEditing) return;
-  const editor = document.querySelector('#reflection-editor');
-  const picker = document.querySelector('#reflection-pick');
-  const remove = document.querySelector('#reflection-remove');
-  const editStatus = document.querySelector('#reflection-edit-status');
+  const editor = document.querySelector(`#reflection-editor${suffix}`);
+  const picker = document.querySelector(`#reflection-pick${suffix}`);
+  const remove = document.querySelector(`#reflection-remove${suffix}`);
+  const editStatus = document.querySelector(`#reflection-edit-status${suffix}`);
   const items = reflections[subject.id] || [];
   function updatePicker() {
     picker.innerHTML = '<option value="">Lägg till en ny reflektion</option>'+items.map((item,index)=>`<option value="${index}">${index+1}. ${escape(item.author || item.body.slice(0,45))}</option>`).join('');
     picker.onchange();
-    document.querySelector('#reflection-entries').innerHTML = reflectionEntries(items);
+    document.querySelector(`#reflection-entries${suffix}`).innerHTML = reflectionEntries(items);
   }
   picker.onchange = () => {
     const item = items[picker.value];
@@ -388,9 +388,24 @@ function render(focusPage=false) {
     const entries=Object.entries(selected?.sections || data.overview);
     const route=enc(active);
     const disclosure = (id,title,body,open=false) => `<details class="block disclosure" id="${id}" ${open?'open':''}><summary>${escape(title)}</summary><div class="disclosure-body">${body}</div></details>`;
-    const sections = entries.map(([title,rows],i) =>
-      disclosure('avsnitt-'+i,title,`<div id="rubrik-${i}" hidden>${escape(title)}</div>${table(rows,'rubrik-'+i)}`,Boolean(selected && i===0))
-    ).join('');
+    const overviewReflectionIds = new Map([
+      ['Läroplanens struktur, värdegrund och uppdrag', 'struktur'],
+      ['Skolans mål och riktlinjer', 'mal'],
+      ['Bedömning, betyg och meritvärde', 'betyg']
+    ]);
+    const sectionReflections = [];
+    const sections = entries.map(([title,rows],i) => {
+      const id = selected ? undefined : overviewReflectionIds.get(title);
+      let body = `<div id="rubrik-${i}" hidden>${escape(title)}</div>${table(rows,'rubrik-'+i)}`;
+      if (id) {
+        const area = {id:'overview-'+id,name:title};
+        const suffix = '-'+area.id;
+        sectionReflections.push({area,suffix});
+        body += reflectionPanel(area,suffix);
+        if (reflectionEditing) body += reflectionEditor(suffix);
+      }
+      return disclosure('avsnitt-'+i,title,body,Boolean(selected && i===0));
+    }).join('');
     content.innerHTML=`<section class="intro${selected ? '' : ' photo-intro'}" aria-labelledby="page-title">
       <p class="eyebrow">${escape(selected?.category || 'Grundskolan · Remiss 9 november 2026')}</p><h1 id="page-title">${escape(name)}</h1>
       <p class="lead">${selected ? escape(selected.note || 'Jämförelse av Lgr22 för årskurs 7–9 och remissens mål och innehåll för årskurs 8–10.') : 'Här går vi igenom den gällande läroplanen och kursplanerna i Lgr22 och jämför dem med Skolverkets nya remissförslag, publicerat den 9 november 2026.'}</p>
@@ -426,6 +441,7 @@ function render(focusPage=false) {
     };
     if (!selected) initDeck();
     if (selected) initReflections(selected);
+    sectionReflections.forEach(({area,suffix})=>initReflections(area,suffix));
     initNotes(name);
     renderNav();
   }

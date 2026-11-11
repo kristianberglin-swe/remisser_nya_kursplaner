@@ -272,8 +272,8 @@ function reflectionPanel(subject) {
         <p>Fyll i formuläret med dina tankar. Efter genomläsning läggs de in på den här ämnessidan.</p>
         <label for="reflection-author">Ditt namn (valfritt)</label><input id="reflection-author" name="author" maxlength="100" autocomplete="name">
         <label for="reflection-body">Din reflektion</label><textarea id="reflection-body" name="body" required maxlength="1800"></textarea>
-        <p>Ämnet och mottagaren fylls i automatiskt. Tryck på Skicka i ditt mejlprogram för att lämna in dina tankar till Kristian Berglin.</p>
-        <div class="actions"><button class="pill" type="submit">Öppna mejl till Kristian</button><button class="pill secondary" type="button" id="reflection-copy">Kopiera mejltext</button></div>
+        <p>Outlook öppnas i en ny flik med ämnet, mottagaren och din text ifyllda. Logga in med skolkontot vid behov och tryck på Skicka.</p>
+        <div class="actions"><button class="pill" type="submit">Öppna utkast i Outlook</button><button class="pill secondary" type="button" id="reflection-copy">Kopiera mejltext</button></div>
         <p id="reflection-status" role="status"></p>
       </form>
     </details>
@@ -296,7 +296,7 @@ function reflectionEditor() {
 function reflectionMail(subject, author, body) {
   const title = 'Remissreflektion – ' + subject.name;
   const message = ['Ämne: '+subject.name, author ? 'Namn: '+author : '', '', body].filter((line,index)=>line || index===2).join('\r\n');
-  return {title,message,href:'mailto:'+reflectionRecipient+'?subject='+enc(title)+'&body='+enc(message)};
+  return {title,message,href:'https://outlook.office.com/mail/deeplink/compose?to='+enc(reflectionRecipient)+'&subject='+enc(title)+'&body='+enc(message)};
 }
 
 function downloadReflectionUpdate() {
@@ -328,8 +328,8 @@ function initReflections(subject) {
     event.preventDefault();
     const mail = readMail();
     if (!mail) return;
-    status.textContent = 'Om mejlutkastet inte öppnas kan du kopiera mejltexten.';
-    location.href = mail.href;
+    status.textContent = 'Om Outlook inte öppnas kan du kopiera mejltexten och klistra in den i ett nytt meddelande.';
+    window.open(mail.href, '_blank', 'noopener,noreferrer');
   };
   document.querySelector('#reflection-copy').onclick = async () => {
     const mail = readMail();

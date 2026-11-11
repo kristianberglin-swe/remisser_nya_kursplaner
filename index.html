@@ -65,7 +65,6 @@ footer{border-top:1px solid var(--edge);padding-top:.8rem;margin-top:1.5rem}
 .brand .brand-logo{display:block;position:relative;overflow:hidden;width:100%;aspect-ratio:5.4;margin:0}
 .brand-logo img{position:absolute;top:50%;left:0;transform:translateY(-50%);display:block;width:100%;height:auto}
 .brand-caption{margin-left:2%;font-size:clamp(.78rem,2.7vw,.92rem);font-style:italic;font-weight:500;color:var(--muted)}
-.subject-select{border-top:1px solid var(--edge);padding:.55rem .15rem}.subject-select label{display:block;margin:0 0 .3rem;font-size:.84rem}.subject-select select{width:100%;min-width:0;padding:.45rem .35rem;border:1px solid #aaa0b6;border-radius:4px;color:var(--ink);background:#fff;font:inherit;font-size:.84rem}
 .subject-brief{padding:clamp(12px,2vw,20px);margin:1rem 0 1.35rem;background:var(--wash);border-left:4px solid #705295;border-radius:4px}.subject-brief h2{margin:0 0 .45rem}.subject-brief ul{margin:0;padding-left:1.25rem}.subject-brief li+li{margin-top:.3rem}
 @media print{.subject-brief{background:none;border-color:#aaa;break-inside:avoid}}
 
@@ -129,34 +128,30 @@ function setMenu(open) {
   sidebar.classList.toggle('open',open);
   toggle.setAttribute('aria-expanded',String(open));
 }
+const collapsedSubjectGroups = new Set();
+let showingSubjectSearch = false;
+
 function renderNav() {
+  if (!showingSubjectSearch) {
+    document.querySelectorAll('#subjects details[data-subject-group]').forEach(group => {
+      if (group.open) collapsedSubjectGroups.delete(group.dataset.subjectGroup);
+      else collapsedSubjectGroups.add(group.dataset.subjectGroup);
+    });
+  }
   const tokens = normalize(search.value).split(' ').filter(Boolean);
+  showingSubjectSearch = tokens.length > 0;
   const byGroup = new Map();
   for (const item of ordered) {
     if (!tokens.every(token => matchText.get(item.id).includes(token))) continue;
     if (!byGroup.has(item.category)) byGroup.set(item.category, []);
     byGroup.get(item.category).push(item);
   }
-  const selectGroups = {
-    'Svenskämnen': ['svenska-val','Svenska'],
-    'Modersmål': ['modersmal-val','Modersmål och samiska'],
-  };
-  if (!tokens.length) {
-    byGroup.set('Modersmål',[...(byGroup.get('Modersmål') || []),...(byGroup.get('Samiska') || [])]);
-    byGroup.delete('Samiska');
-  }
   const groups = ['Övningsämnen','Naturvetenskap, matematik och teknik','Samhällsorienterande ämnen','Svenskämnen','Engelska, moderna språk och teckenspråk','Modersmål','Samiska'];
   subjects.innerHTML = groups.filter(group => byGroup.has(group)).map(group => {
     const entries = byGroup.get(group);
-    if (!tokens.length && selectGroups[group]) {
-      const [id,label] = selectGroups[group];
-      return `<div class="subject-select"><label for="${id}">${label}</label><select id="${id}" data-subject-select><option value="">Välj kursplan</option>${entries.map(item=>
-        `<option value="${enc(item.name)}" ${item.name===active?'selected':''}>${escape(item.name.replace(/^Modersmål – /,''))}</option>`
-      ).join('')}</select></div>`;
-    }
     const links = entries.map(item =>
       `<a class="nav-link" href="#${enc(item.name)}" ${item.name===active?'aria-current="page"':''}>${escape(item.name)}</a>`).join('');
-    return `<details class="subject-group" ${tokens.length || byGroup.get(group).some(item=>item.name===active) ? 'open' : ''}><summary>${escape(group)}</summary>${links}</details>`;
+    return `<details class="subject-group" data-subject-group="${escape(group)}" ${showingSubjectSearch || !collapsedSubjectGroups.has(group) ? 'open' : ''}><summary>${escape(group)}</summary>${links}</details>`;
   }).join('');
   const count = [...byGroup.values()].reduce((sum, group) => sum + group.length, 0);
   const overviewMatch = tokens.length && tokens.every(token => normalize(Object.values(data.overview).flat(2).join(' ')).includes(token));
@@ -259,7 +254,7 @@ const reflectionRecipient = 'kristian.berglin@danderyd.se';
 const reflectionEditing = new URLSearchParams(location.search).get('redigera') === '1';
 
 function reflectionEntries(items) {
-  return items.length ? items.map(({author,body}) => `<blockquote class="reflection-entry"><p>${escape(body)}</p>${author ? `<footer>${escape(author)}</footer>` : ''}</blockquote>`).join('') : '<p>Här visas kollegornas reflektioner när de har publicerats.</p>';
+  return items.length ? items.map(({author,body}) => `<blockquote class="reflection-entry"><p><em>”${escape(body)}”</em></p>${author ? `<footer>${escape(author)}</footer>` : ''}</blockquote>`).join('') : '<p>Här visas kollegornas reflektioner när de har publicerats.</p>';
 }
 
 function reflectionPanel(subject) {
@@ -453,12 +448,6 @@ search.addEventListener('keydown',event=>{
     const first=subjects.querySelector('a');
     if(first){first.click();event.preventDefault();}
   }
-});
-subjects.addEventListener('change',event=>{
-  const select = event.target.closest('[data-subject-select]');
-  if (!select?.value) return;
-  setMenu(false);
-  location.hash = select.value;
 });
 sidebar.addEventListener('click',event=>{
   if(event.target.closest('a')) {setMenu(false); if(event.target.closest('a').hash===location.hash) render(true);}

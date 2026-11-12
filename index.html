@@ -203,7 +203,7 @@ function strategyLesson(example,disclosure) {
 function teachingStrategies({scope,purpose,goals,general,specific,source,purposePage,goalsPage,generalPage,specificPage,curriculum,curriculumPage,example},disclosure) {
   const textWithSource = (blocks,page) => `<div class="strategy-text">${strategyText(blocks)}<p class="strategy-source"><a href="${escape(source)}#page=${page}" target="_blank" rel="noopener noreferrer">Läs avsnittet i Skolverkets remissbilaga (PDF, s. ${page}) ↗</a></p></div>`;
   return `<section class="teaching-strategies" aria-labelledby="strategier-title">
-    <h2 class="material-title" id="strategier-title">Undervisningsstrategier i remissförslaget</h2>
+    <h2 class="material-title" id="strategier-title">Utdrag ur remissen</h2>
     <p class="strategy-scope">Text från Skolverkets remissbilaga. Kursiveringar visas i PDF-filen. Strategier · ${escape(scope)}.</p>
     ${disclosure('amnets-syfte','Ämnets syfte',textWithSource(purpose,purposePage))}
     ${disclosure('mal-och-innehall','Mål och innehåll',textWithSource(curriculum,curriculumPage))}
@@ -476,7 +476,7 @@ function render(focusPage=false) {
       ${selected ? `<section class="subject-brief" aria-labelledby="subject-brief-title"><h2 id="subject-brief-title">De största förändringarna i remissen</h2><ul>${selected.brief.map(point=>`<li>${escape(point)}</li>`).join('')}</ul></section>` : ''}
       ${selected ? teachingStrategies(selected.strategies,disclosure) : ''}
       <section class="material" aria-labelledby="material-title">
-        <h2 class="material-title" id="material-title">${selected?'Ämnesjämförelser':'Ta del av materialet'}</h2>
+        <h2 class="material-title" id="material-title">${selected?'Jämförelse mellan nuvarande kursplan och remissen':'Ta del av materialet'}</h2>
         ${sections}
         ${disclosure('kallor','Källor och läsanvisning',`<p>Kolumnerna återger och jämför källorna i sammanfattad form. Den sista kolumnen ger exempel på pedagogiska följder och möjliga bedömningsunderlag.</p><div class="actions">${sourceLinks(selected ? [...selected.sources,data.links[5],data.links[6]] : data.links)}</div>`)}
       </section>
